@@ -23,12 +23,6 @@ terraform {
 | `iximiuz-labs_play` | Launch a play session from a playground |
 | `iximiuz-labs_play_port` | Forward a port in a running play |
 | `iximiuz-labs_play_shell` | Open a shell session in a running play |
-| `iximiuz-labs_challenge` | Register a challenge content resource |
-| `iximiuz-labs_tutorial` | Register a tutorial content resource |
-| `iximiuz-labs_course` | Register a course content resource |
-| `iximiuz-labs_roadmap` | Register a roadmap content resource (**API not yet supported** — resource is a placeholder) |
-| `iximiuz-labs_skill_path` | Register a skill path content resource |
-| `iximiuz-labs_training` | Register a training content resource |
 
 ## Data Sources
 

@@ -150,12 +150,6 @@ func (p *IximiuzLabsProvider) Resources(ctx context.Context) []func() resource.R
 	return []func() resource.Resource{
 		NewPlaygroundResource,
 		NewPlayResource,
-		NewChallengeResource,
-		NewTutorialResource,
-		NewCourseResource,
-		NewRoadmapResource,
-		NewSkillPathResource,
-		NewTrainingResource,
 		NewPlayPortResource,
 		NewPlayShellResource,
 	}
