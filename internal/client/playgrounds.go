@@ -5,8 +5,12 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"math"
+	"net/http"
 	"net/url"
+	"time"
 )
 
 // ListPlaygrounds lists all playgrounds, optionally filtered.
@@ -54,9 +58,35 @@ func (c *Client) UpdatePlayground(ctx context.Context, name string, req UpdatePl
 }
 
 // DeletePlayground deletes a playground by name.
+// If the API returns 400 (playground still has an active play), it retries up
+// to 3 times with exponential backoff (1 s, 2 s, 4 s) before giving up.
 func (c *Client) DeletePlayground(ctx context.Context, name string) error {
-	if err := c.Delete(ctx, "/playgrounds/"+url.PathEscape(name), nil); err != nil {
+	const maxDeleteRetries = 3
+
+	var lastErr error
+	for attempt := 0; attempt <= maxDeleteRetries; attempt++ {
+		if attempt > 0 {
+			delay := time.Second * time.Duration(math.Pow(2, float64(attempt-1)))
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(delay):
+			}
+		}
+
+		err := c.Delete(ctx, "/playgrounds/"+url.PathEscape(name), nil)
+		if err == nil {
+			return nil
+		}
+
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusBadRequest {
+			lastErr = err
+			continue
+		}
+
 		return fmt.Errorf("deleting playground %q: %w", name, err)
 	}
-	return nil
+
+	return fmt.Errorf("deleting playground %q: %w", name, lastErr)
 }
